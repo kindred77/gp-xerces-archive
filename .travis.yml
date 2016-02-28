@@ -7,12 +7,14 @@ sudo: no
 
 compiler:
   - gcc
+cache: ccache
 
 script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir build
-  - ../configure
-  - make
+  - cd build
+  - ../configure --prefix=${TRAVIS_BUILD_DIR}/build/install
+  - make -j4
   - make install
 
 notificastions:
