@@ -1,0 +1,23 @@
+os:
+  - linux
+  - osx
+
+language: c
+sudo: no
+
+compiler:
+  - gcc
+
+script:
+  - cd ${TRAVIS_BUILD_DIR}
+  - mkdir build
+  - ../configure
+  - make
+  - make install
+
+notificastions:
+  email:
+    recipients:
+      - releng@pivotal.io
+    on_success: change
+    on_failure: always
