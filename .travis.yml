@@ -15,6 +15,7 @@ script:
   - cd build
   - ../configure --prefix=${TRAVIS_BUILD_DIR}/install
   - make -j4
+  - rm -fr $PTRAVIS_BUILD_DIR}/install
   - make install
 
 notificastions:
