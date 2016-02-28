@@ -13,7 +13,7 @@ script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir build
   - cd build
-  - ../configure --prefix=${TRAVIS_BUILD_DIR}/install CC="ccache gcc"
+  - ../configure --prefix=${TRAVIS_BUILD_DIR}/install
   - make -j4
   - make install
 
