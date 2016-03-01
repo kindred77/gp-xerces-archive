@@ -2,3 +2,11 @@
 
 # gp-xerces
 Greenplum patched xerces-c in order to compile GPORCA
+
+```
+mkdir build
+cd build
+../configure --prefix=/usr/local
+make
+make install
+```
