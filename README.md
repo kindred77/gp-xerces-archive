@@ -16,7 +16,7 @@ make install
 ```
 mkdir build
 cd build
-CFLAGS="-m32" CXXFLAGS="-m32" ../configure --prefix=/usr/local
+env CFLAGS="-m32" CXXFLAGS="-m32" ../configure --prefix=/usr/local
 make
 make install
 ```
