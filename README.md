@@ -10,3 +10,13 @@ cd build
 make
 make install
 ```
+
+# build 32-bit
+
+```
+mkdir build
+cd build
+CFLAGS="-m32" CXXFLAGS="-m32" ../configure --prefix=/usr/local
+make
+make install
+```
