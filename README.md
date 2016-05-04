@@ -20,3 +20,13 @@ env CFLAGS="-m32" CXXFLAGS="-m32" ../configure --prefix=/usr/local
 make
 make install
 ```
+
+# debug build
+
+```
+mkdir build
+cd build
+env CFLAGS="-g" CXXFLAGS="-g" ../configure --prefix=/usr/local
+make
+make install
+```
