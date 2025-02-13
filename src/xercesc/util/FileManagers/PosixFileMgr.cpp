@@ -198,8 +198,13 @@ PosixFileMgr::getFullPath(const XMLCh* const srcPath, MemoryManager* const manag
     char absPath[PATH_MAX + 1];
     
     // get the absolute path
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+    if (!_fullpath(absPath, newSrc, PATH_MAX + 1))
+        ThrowXMLwithMemMgr(XMLPlatformUtilsException, XMLExcepts::File_CouldNotGetBasePathName, manager);
+#else
     if (!realpath(newSrc, absPath))
         ThrowXMLwithMemMgr(XMLPlatformUtilsException, XMLExcepts::File_CouldNotGetBasePathName, manager);
+#endif
 
     XMLCh* ret = XMLString::transcode(absPath, manager);
 #else
