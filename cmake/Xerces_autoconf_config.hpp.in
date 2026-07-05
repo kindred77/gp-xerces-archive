@@ -8,6 +8,11 @@
 #if defined(_MSC_VER)
 #  include <basetsd.h>
 #endif
+#if !defined(_MSC_VER)
+#  include <cstddef>
+#  include <cstdint>
+#  include <sys/types.h>
+#endif
 
 #define XERCES_PLATFORM_EXPORT @XERCES_PLATFORM_EXPORT@
 #define XERCES_PLATFORM_IMPORT @XERCES_PLATFORM_IMPORT@

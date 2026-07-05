@@ -10,8 +10,19 @@
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
 cmake_minimum_required(VERSION 3.10)
-project(xerces-c VERSION 3.1.2 DESCRIPTION "Xerces-C++ XML Parser" LANGUAGES CXX C)
+# When using GCC from MSYS2/MinGW on Windows the compiler binary needs its
+# runtime DLLs (e.g. msys-2.0.dll) in PATH to even load.  Prepend its
+# directory to PATH so CMake's compiler-detection test (inside project())
+# succeeds.  The build-time launcher block below handles the ninja/make
+# rules.
+if(CMAKE_HOST_WIN32 AND DEFINED CMAKE_CXX_COMPILER AND "${CMAKE_CXX_COMPILER}" MATCHES "mingw|msys|ucrt64")
+  get_filename_component(_gnu_bin "${CMAKE_CXX_COMPILER}" DIRECTORY)
+  set(ENV{PATH} "${_gnu_bin};$ENV{PATH}")
+  message(STATUS "Prepending ${_gnu_bin} to PATH for MSYS2/MinGW compiler detection")
+  unset(_gnu_bin)
+endif()
 
+project(xerces-c VERSION 3.1.2 DESCRIPTION "Xerces-C++ XML Parser" LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -260,18 +271,47 @@ else()
   set(HAVE_GETTIMEOFDAY 1)
 endif()
 
-# ---- type sizes ----
+# ---- MinGW / MSYS2 PATH workaround ----
+# GCC from MSYS2/MinGW loads runtime DLLs (e.g. msys-2.0.dll) from its own
+# bin/ directory at startup.  The build tool (ninja/make etc.) inherits PATH
+# from the shell that launched it, which often does NOT include the MSYS2 bin
+# dir.  To keep the compiler loadable, prepend its directory to PATH via a
+# compile/link launcher.
+if(CMAKE_HOST_WIN32 AND (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+  get_filename_component(_gnu_bin "${CMAKE_CXX_COMPILER}" DIRECTORY)
+
+  # Generate a launcher script that prepends the compiler dir to PATH.
+  set(_launcher_script "${CMAKE_BINARY_DIR}/xerces_launcher.cmd")
+  file(WRITE "${_launcher_script}"
+    "@echo off\r\n"
+    "set \"PATH=${_gnu_bin};%PATH%\"\r\n"
+    "%*\r\n"
+  )
+
+  set(CMAKE_C_COMPILER_LAUNCHER "cmd" "/c" "${_launcher_script}")
+  set(CMAKE_CXX_COMPILER_LAUNCHER "cmd" "/c" "${_launcher_script}")
+
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.29")
+    set(CMAKE_C_LINKER_LAUNCHER "cmd" "/c" "${_launcher_script}")
+    set(CMAKE_CXX_LINKER_LAUNCHER "cmd" "/c" "${_launcher_script}")
+  endif()
+
+  unset(_launcher_script)
+  unset(_gnu_bin)
+  message(STATUS "MinGW/MSYS2 detected - added PATH launcher for compiler DLLs")
+endif()
+
 check_type_size("wchar_t"  SIZEOF_WCHAR_T)
 check_type_size("int"      SIZEOF_INT)
 check_type_size("long"     SIZEOF_LONG)
 check_type_size("long long" SIZEOF_LONG_LONG)
 check_type_size("short"    SIZEOF_SHORT)
-if(WIN32)
+if(MSVC)
   check_type_size("__int64" SIZEOF___INT64)
 endif()
 
 # ---- platform integer types ----
-if(WIN32)
+if(MSVC)
   set(PROJECT_XERCES_S16BIT_INT "signed short")
   set(PROJECT_XERCES_U16BIT_INT "unsigned short")
   set(PROJECT_XERCES_S32BIT_INT "INT32")
@@ -295,7 +335,7 @@ else()
 endif()
 
 # ---- size types ----
-if(WIN32)
+if(MSVC)
   set(XERCES_SIZE_T "SIZE_T")
   set(XERCES_SSIZE_T "SSIZE_T")
 else()
