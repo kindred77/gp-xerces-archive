@@ -19,7 +19,9 @@
  * $Id: PosixFileMgr.cpp 1662881 2015-02-28 02:00:45Z scantor $
  */
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif
 #include <stdio.h>
 
 #if HAVE_UNISTD_H
@@ -257,4 +259,3 @@ PosixFileMgr::isRelative(const XMLCh* const toCheck, MemoryManager* const /*mana
 
 
 XERCES_CPP_NAMESPACE_END
-
